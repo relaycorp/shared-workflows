@@ -1,0 +1,24 @@
+name: Automatically merge Dependabot PRs
+on:
+  workflow_call:
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Fetch metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.1.1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Rename production dependencies
+        if: ${{ steps.metadata.outputs.dependency-type == 'direct:production' }}
+        run: gh pr edit "$PR_URL" --title "${OLD_TITLE/chore/fix}"
+        env:
+          OLD_TITLE: ${{ github.event.pull_request.title }}
+      - name: Add automerge label
+        run: gh pr edit "$PR_URL" --add-label "automerge"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
