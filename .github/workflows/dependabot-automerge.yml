@@ -5,7 +5,7 @@ on:
 jobs:
   label:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+#    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Fetch metadata
         id: metadata
