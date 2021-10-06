@@ -2,6 +2,8 @@
 
 See also: [shared-config](https://github.com/relaycorp/shared-config).
 
+## Workflows
+
 | Workflow | Events |
 | --- | --- |
-| [`prs.yml`](./prs.yml) | `pull_request` (`opened`, `edited`) |
+| [`prs.yml`](.github/workflows/prs.yml) | `pull_request` (`opened`, `edited`) |
