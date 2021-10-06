@@ -1,4 +1,4 @@
-name: Automatically merge Dependabot PRs
+name: Process pull requests
 on:
   workflow_call:
     secrets:
@@ -6,16 +6,16 @@ on:
         required: true
 
 jobs:
-  label:
+  dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
     steps:
       - name: Fetch metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1.1.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Rename production dependencies
+      - name: Trigger release if dependency is used in production
         if: ${{ steps.metadata.outputs.dependency-type == 'direct:production' }}
         run: gh pr edit "$PR_URL" --title "${OLD_TITLE/chore/fix}"
         env:
