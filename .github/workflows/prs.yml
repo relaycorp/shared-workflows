@@ -8,7 +8,7 @@ on:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Fetch metadata
         id: metadata
