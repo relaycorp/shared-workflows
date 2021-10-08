@@ -22,6 +22,7 @@ jobs:
         env:
           OLD_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Add automerge label
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
