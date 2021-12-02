@@ -11,9 +11,9 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
     steps:
       - name: Report number of chars in GITHUB_TOKEN
-        run: echo -n "${GITHUB_TOKEN}" | wc -c
+        run: echo -n "${TOKEN}" | wc -c
         env:
-          GITHUB_TOKEN: ${{ secrets.githubToken }}
+          TOKEN: ${{ secrets.githubToken }}
       - name: Fetch metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1.1.1
