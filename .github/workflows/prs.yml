@@ -9,7 +9,8 @@ on:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
+#    if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Report number of chars in PAT
         run: echo -n "${TOKEN}" | wc -c
