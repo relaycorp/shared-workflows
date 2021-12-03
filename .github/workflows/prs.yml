@@ -15,7 +15,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v1.1.1
         with:
-          github-token: ${{ secrets.dependabotPAT }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Trigger release if dependency is used in production
         if: ${{ steps.metadata.outputs.dependency-type == 'direct:production' }}
         run: gh pr edit "$PR_URL" --title "${OLD_TITLE/chore/fix}"
