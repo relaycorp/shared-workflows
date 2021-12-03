@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
     steps:
-      - name: Report number of chars in GITHUB_TOKEN
+      - name: Report number of chars in IRELAYBOT_PAT_PR_AUTOMATION
         run: echo -n "${TOKEN}" | wc -c
         env:
-          TOKEN: ${{ secrets.githubToken }}
+          TOKEN: ${{ secrets.IRELAYBOT_PAT_PR_AUTOMATION }}
       - name: Fetch metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1.1.1
