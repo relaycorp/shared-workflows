@@ -2,32 +2,33 @@ name: Process pull requests
 on:
   workflow_call:
     secrets:
-      githubToken:
+      dependabotPAT:
         required: true
+        description: "The @irelaybot Personal Access Token for Dependabot to use"
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
     steps:
-      - name: Report number of chars in IRELAYBOT_PAT_PR_AUTOMATION
+      - name: Report number of chars in PAT
         run: echo -n "${TOKEN}" | wc -c
         env:
-          TOKEN: ${{ secrets.IRELAYBOT_PAT_PR_AUTOMATION }}
+          TOKEN: ${{ secrets.dependabotPAT }}
       - name: Fetch metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1.1.1
         with:
-          github-token: ${{ secrets.githubToken }}
+          github-token: ${{ secrets.dependabotPAT }}
       - name: Trigger release if dependency is used in production
         if: ${{ steps.metadata.outputs.dependency-type == 'direct:production' }}
         run: gh pr edit "$PR_URL" --title "${OLD_TITLE/chore/fix}"
         env:
           OLD_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.githubToken }}
+          GITHUB_TOKEN: ${{ secrets.dependabotPAT }}
       - name: Add automerge label
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.githubToken }}
+          GITHUB_TOKEN: ${{ secrets.dependabotPAT }}
