@@ -28,6 +28,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.dependabotPAT }}
       - name: Add automerge label
+        if: ${{ steps.metadata.outputs.dependency-type != 'direct:production' }}
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
