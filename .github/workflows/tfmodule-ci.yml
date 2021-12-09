@@ -4,7 +4,7 @@ on:
     inputs:
       path:
         description: "The path to the Terraform module"
-        required: true
+        required: false
         type: string
         default: "/"
 
