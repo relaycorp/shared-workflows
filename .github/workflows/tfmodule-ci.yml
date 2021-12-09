@@ -6,7 +6,7 @@ on:
         description: "The path to the Terraform module"
         required: false
         type: string
-        default: "/"
+        default: ""
       terraform_version:
         description: "The Terraform version"
         required: false
