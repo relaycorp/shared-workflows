@@ -7,6 +7,11 @@ on:
         required: false
         type: string
         default: "/"
+      terraform_version:
+        description: "The Terraform version"
+        required: false
+        type: string
+        default: "0.14.5"
 
 jobs:
   ci:
@@ -17,6 +22,8 @@ jobs:
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
 
       - run: terraform fmt -check -recursive
         working-directory: ${{ inputs.path }}
