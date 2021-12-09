@@ -1,0 +1,28 @@
+name: Process pull requests
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: "The path to the Terraform module"
+        required: true
+        type: string
+        default: "/"
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - run: terraform fmt -check -recursive
+        working-directory: ${{ inputs.path }}
+
+      - run: terraform init -backend=false
+        working-directory: ${{ inputs.path }}
+
+      - run: terraform validate
+        working-directory: ${{ inputs.path }}
