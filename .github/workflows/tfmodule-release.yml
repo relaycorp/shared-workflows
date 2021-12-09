@@ -1,0 +1,23 @@
+name: Automated releases for Terraform modules
+on:
+  workflow_call:
+    inputs:
+      release_branches:
+        description: "The semantic-release branch"
+        required: false
+        type: string
+        default: "[main]"
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: cycjimmy/semantic-release-action@v2
+        with:
+          semantic_version: 18.0.1
+          branches: ${{ inputs.release_branches }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
