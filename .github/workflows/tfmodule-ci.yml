@@ -11,7 +11,7 @@ on:
         description: "The Terraform version"
         required: false
         type: string
-        default: "0.14.5"
+        default: "1.1.0"
 
 jobs:
   ci:
