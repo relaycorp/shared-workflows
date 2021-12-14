@@ -51,6 +51,8 @@ jobs:
       - name: Release
         id: release
         uses: cycjimmy/semantic-release-action@v2
+        with:
+          semantic_version: 18.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.npm_token }}
