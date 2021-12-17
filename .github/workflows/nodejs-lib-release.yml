@@ -32,11 +32,11 @@ jobs:
       - run: npm run build
 
       - uses: actions/setup-ruby@v1
-        if: inputs.jekyll_docs
+        if: ${{ inputs.jekyll_docs == true }}
         with:
           ruby-version: '2.5'
       - name: Generate docs
-        if: inputs.jekyll_docs
+        if: ${{ inputs.jekyll_docs == true }}
         run: |
           # Jekyll docs:
           gem install bundler
@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.npm_token }}
       - name: Publish documentation
-        if: steps.release.outputs.new_release_published
+        if: ${{ steps.release.outputs.new_release_published == true }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
