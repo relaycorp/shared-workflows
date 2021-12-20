@@ -6,6 +6,8 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
+    permissions:
+      pull-requests: write
     steps:
       - name: Auto-merge PR
         run: gh pr merge --auto --merge "$PR_URL"
