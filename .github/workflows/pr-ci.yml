@@ -7,10 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && github.event.action == 'opened' }}
     permissions:
-      pull-requests: write
+      issues: "write" # Work around https://github.com/cli/cli/issues/4631
+      pull-requests: "write"
     steps:
       - name: Auto-merge PR
-        run: gh pr merge --auto --merge "$PR_URL"
+        run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
