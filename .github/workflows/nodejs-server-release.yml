@@ -42,7 +42,7 @@ jobs:
       - name: Import Docker image
         run: docker load -i /tmp/docker-image
       - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/${{ inputs.main_branch }}'
+        if: github.ref == format('refs/heads/{0}', inputs.main_branch)
         uses: azure/docker-login@v1
         with:
           login-server: ghcr.io
