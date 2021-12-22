@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      api_docs:
+        description: "Whether the project has API documentation"
+        required: false
+        type: boolean
+        default: false
     secrets:
       npm_token:
         description: "The NPM_TOKEN"
@@ -35,18 +40,17 @@ jobs:
         if: ${{ inputs.jekyll_docs == true }}
         with:
           ruby-version: '2.5'
-      - name: Generate docs
+      - name: Generate Jekyll docs
         if: ${{ inputs.jekyll_docs == true }}
         run: |
-          # Jekyll docs:
           gem install bundler
-          cd docs
           bundle install --path vendor/bundle
           bundle exec jekyll build
+        working-directory: docs
 
-          # TypeDoc docs:
-          cd ..
-          npm run doc-api
+      - name: Generate API docs
+        if: ${{ inputs.jekyll_docs == true || inputs.api_docs == true }}
+        run: npm run doc-api
 
       - name: Release
         id: release
