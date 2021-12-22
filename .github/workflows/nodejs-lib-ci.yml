@@ -1,6 +1,12 @@
 name: Run CI
 on:
   workflow_call:
+    inputs:
+      restrict_integration_tests_to_ubuntu:
+        description: "Whether the integration tests should only be run on Ubuntu"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   static-checks:
@@ -45,3 +51,4 @@ jobs:
       - run: npm ci
       - run: npm run test:ci:unit
       - run: npm run test:integration
+        if: "${{ input.restrict_integration_tests_to_ubuntu == false || startsWith(runner.os, 'ubuntu-') }}"
