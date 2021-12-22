@@ -25,7 +25,7 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - run: terraform fmt -check -recursive
+      - run: terraform fmt -check
         working-directory: ${{ inputs.path }}
 
       - run: terraform init -backend=false
