@@ -51,4 +51,4 @@ jobs:
       - run: npm ci
       - run: npm run test:ci:unit
       - run: npm run test:integration
-        if: ${{ inputs.restrict_integration_tests_to_ubuntu == false || startsWith(matrix.os, "ubuntu-") }}
+        if: "${{ inputs.restrict_integration_tests_to_ubuntu == false || startsWith(matrix.os, 'ubuntu-') }}"
