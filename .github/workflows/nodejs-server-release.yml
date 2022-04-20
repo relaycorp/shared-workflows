@@ -54,7 +54,7 @@ jobs:
           username: irelaybot
           password: ${{ secrets.ghcr_password }}
       - name: Publish Docker image and Helm chart
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v3
         with:
           semantic_version: 18.0.1
           extra_plugins: |
