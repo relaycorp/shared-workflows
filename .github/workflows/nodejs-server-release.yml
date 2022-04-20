@@ -6,6 +6,11 @@ on:
         description: "The main branch"
         required: true
         type: string
+      nodejs_version:
+        description: "The version of Node.js to use"
+        required: false
+        default: 16
+        type: string
 
     secrets:
       ghcr_password:
@@ -21,7 +26,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: ${{ inputs.nodejs_version }}
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
