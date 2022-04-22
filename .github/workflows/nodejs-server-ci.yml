@@ -7,9 +7,14 @@ on:
         required: true
         type: string
       nodejs_version:
-        description: "The version of Node.js to use"
+        description: "The version of Node.js"
         required: false
         default: 16
+        type: string
+      skaffold_version:
+        description: "The version of Skaffold"
+        required: false
+        default: 1.19.0
         type: string
 
 jobs:
@@ -50,7 +55,7 @@ jobs:
         uses: hiberbee/github-action-skaffold@1.4.0
         with:
           command: run
-          skaffold-version: 1.19.0
+          skaffold-version: ${{ inputs.skaffold_version }}
         env:
           # Work around https://github.com/hiberbee/github-action-skaffold/issues/7
           ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
