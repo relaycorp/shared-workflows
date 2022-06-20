@@ -59,7 +59,7 @@ jobs:
         env:
           # Work around https://github.com/hiberbee/github-action-skaffold/issues/7
           ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
-        timeout-minutes: 8
+        timeout-minutes: 10
       - name: Start port-forwarding
         run: .github/scripts/port-forward.sh
       - run: npm run test:functional
