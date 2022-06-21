@@ -36,7 +36,7 @@ jobs:
         run: npm ci
       - uses: azure/setup-helm@v1
         with:
-          version: v3.4.0
+          version: v3.7.0
       - name: Install Helm Push plugin
         run: helm plugin install https://github.com/chartmuseum/helm-push --version 0.9.0
       - name: Download Docker image
