@@ -39,12 +39,12 @@ jobs:
       - uses: azure/setup-helm@v1
         with:
           version: v3.7.0
-      - name: Update Helm chart dependencies
-        run: helm dependency update chart/
-      - name: Lint Helm chart
-        run: helm lint chart/ --values=chart/values.dev.yml --strict
-      - name: Template Helm chart
-        run: helm template --values=chart/values.dev.yml chart/
+
+      # Check the main chart and the one for backing services
+      - run: helm dependency update chart/
+      - run: helm dependency update chart/dev-backing-services
+      - run: helm lint chart/ --values=chart/values.dev.yml --strict
+      - run: helm lint chart/dev-backing-services --values=chart/dev-backing-services/values.yml --strict
 
       # Functional tests
       - name: Create Kind cluster
