@@ -1,0 +1,57 @@
+name: Release
+on:
+  workflow_call:
+    secrets:
+      android_keystore:
+        required: true
+      android_keystore_password:
+        required: true
+      android_key_alias:
+        required: true
+      android_key_password:
+        required: true
+      android_publisher_credentials:
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with:
+          java-version: 11
+      - name: Cache Grade dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: build
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          semantic_version: 19.0.3
+          extra_plugins: |
+            @semantic-release/exec@^6.0.3
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.android_keystore }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
+          ANDROID_KEYSTORE_KEY_ALIAS: ${{ secrets.android_key_alias }}
+          ANDROID_KEYSTORE_KEY_PASSWORD: ${{ secrets.android_key_password }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.android_publisher_credentials }}
