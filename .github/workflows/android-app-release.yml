@@ -32,6 +32,16 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         with:
           arguments: build
+
+      # The built-in plugin @semantic-release/npm requires package.json to exist even if not used
+      - name: Create dummy package.json
+        run: |
+          if [[ -f package.json ]]; then
+            echo "package.json already exists"
+          else
+            echo '{"name": "foo"}' > package.json
+          fi
+
       - name: Release
         uses: cycjimmy/semantic-release-action@v3
         with:
