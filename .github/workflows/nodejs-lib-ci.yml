@@ -50,7 +50,7 @@ jobs:
           key: ${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
       - run: npm ci
         timeout-minutes: 5
-      - run: npm run test:ci:unit
+      - run: npm test
         timeout-minutes: 10
       - run: npm run test:integration
         if: "${{ inputs.restrict_integration_tests_to_ubuntu == false || startsWith(matrix.os, 'ubuntu-') }}"
