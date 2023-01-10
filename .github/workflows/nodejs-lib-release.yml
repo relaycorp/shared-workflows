@@ -21,14 +21,14 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 14
       - name: Get npm cache directory
         id: npm-cache
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
       - uses: actions/cache@v2
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
