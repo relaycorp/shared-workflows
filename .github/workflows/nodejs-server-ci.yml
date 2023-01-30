@@ -11,6 +11,11 @@ on:
         required: false
         default: 16
         type: string
+      kubernetes_version:
+        description: "The version of Kubernetes"
+        required: false
+        default: 1.22.15
+        type: string
       skaffold_version:
         description: "The version of Skaffold"
         required: false
@@ -51,6 +56,12 @@ jobs:
         uses: helm/kind-action@v1.2.0
         with:
           cluster_name: default
+          kubectl_version: "v${{ inputs.kubernetes_version }}"
+          node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
+      - name: Describe Kubernetes environment
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.4.0
         with:
