@@ -58,10 +58,6 @@ jobs:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
           node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
-      - name: Describe Kubernetes environment
-        run: |
-          kubectl cluster-info
-          kubectl get nodes
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.4.0
         with:
