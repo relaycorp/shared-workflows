@@ -63,7 +63,7 @@ jobs:
           kubectl_version: "v${{ inputs.kubernetes_version }}"
           node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
       - name: Run Skaffold pipeline
-        uses: hiberbee/github-action-skaffold@1.4.0
+        uses: hiberbee/github-action-skaffold@1.24.0
         with:
           command: run
           skaffold-version: ${{ inputs.skaffold_version }}
