@@ -58,7 +58,12 @@ jobs:
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: ${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
-      - run: npm ci
+      - name: npm ci
+        uses: nick-fields/retry@v2
+        with:
+          command: npm ci
+          timeout_minutes: 3
+          max_attempts: 3
         timeout-minutes: 5
       - run: npm test
         timeout-minutes: 10
