@@ -64,7 +64,7 @@ jobs:
           command: npm ci
           timeout_minutes: 3
           max_attempts: 3
-        timeout-minutes: 5
+        timeout-minutes: 10
       - run: npm test
         timeout-minutes: 10
       - run: npm run test:integration
