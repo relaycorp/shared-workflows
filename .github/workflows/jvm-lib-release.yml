@@ -1,6 +1,24 @@
 name: Run CI
 on:
   workflow_call:
+    inputs:
+      maven_username:
+        required: true
+        type: string
+
+    secrets:
+      maven_password:
+        required: true
+        type: string
+      maven_central_signing_key_id:
+        required: true
+        type: string
+      maven_central_signing_key:
+        required: true
+        type: string
+      maven_central_signing_key_password:
+        required: true
+        type: string
 
 jobs:
   release:
@@ -57,8 +75,8 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_PASSPHRASE }}
+          MAVEN_USERNAME: ${{ inputs.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.maven_password }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.maven_central_signing_key_id }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.maven_central_signing_key }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.maven_central_signing_key_password }}
