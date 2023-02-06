@@ -4,19 +4,14 @@ on:
     secrets:
       maven_username:
         required: true
-        type: string
       maven_password:
         required: true
-        type: string
       maven_central_signing_key_id:
         required: true
-        type: string
       maven_central_signing_key:
         required: true
-        type: string
       maven_central_signing_key_password:
         required: true
-        type: string
 
 jobs:
   release:
