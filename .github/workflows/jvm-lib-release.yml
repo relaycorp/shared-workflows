@@ -1,0 +1,64 @@
+name: Run CI
+on:
+  workflow_call:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: zulu
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Generate docs
+        uses: eskatos/gradle-command-action@v2
+        with:
+          arguments: dokkaHtml
+
+      # Ridiculous workaround for https://github.com/Kotlin/dokka/issues/163
+      - name: Move Dokka's assets into a sensible place
+        run: |
+          set -x -o nounset -o errexit -o pipefail
+          cd ./build/dokka/html
+          mv ./styles ./images ./scripts navigation.html index.html ./doh/
+          find ./doh/ -name '*.html' -print0 | xargs -0 sed -i 's;../styles/;styles/;g'
+          find ./doh/ -name '*.html' -print0 | xargs -0 sed -i 's;../images/;images/;g'
+          find ./doh/ -name '*.html' -print0 | xargs -0 sed -i 's;../scripts/;scripts/;g'
+          find ./doh/ -name '*.html' -print0 | xargs -0 sed -i 's;pathToRoot = "../;pathToRoot = ";g'
+          sed -i 's;href="doh/;href=";g' ./doh/navigation.html
+          sed -i 's;href="doh/;href=";g' ./doh/index.html
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Publish documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages
+          publish_dir: ./build/dokka/html/doh
+          allow_empty_commit: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_PASSPHRASE }}
