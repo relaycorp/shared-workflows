@@ -55,7 +55,7 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_USERNAME: ${{ secrets.maven_username }}
           MAVEN_PASSWORD: ${{ secrets.maven_password }}
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.maven_central_signing_key_id }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.maven_central_signing_key }}
