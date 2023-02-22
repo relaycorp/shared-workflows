@@ -50,7 +50,6 @@ jobs:
       - run: npm run static-checks
         continue-on-error: true # TODO: Undo
       - run: npm run test:unit
-        continue-on-error: true
 
       # Functional tests
       - name: Create Kind cluster
