@@ -94,8 +94,10 @@ jobs:
 
       # Export Docker image so it can be published
       - name: Export Docker image
+        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
       - name: Upload Docker image
+        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
