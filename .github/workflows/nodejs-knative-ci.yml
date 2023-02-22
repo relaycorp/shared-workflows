@@ -53,6 +53,7 @@ jobs:
 
       # Functional tests
       - name: Setup Knative
+        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         run: |-
           set -o nounset
           set -o errexit
@@ -75,6 +76,7 @@ jobs:
           KUBERNETES_VERSION: "${{ inputs.kubernetes_version }}"
           BIN_PATH: /home/runner/.local/bin
       - name: Run Skaffold pipeline
+        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
           command: run
@@ -82,6 +84,7 @@ jobs:
           kubectl-version: ${{ inputs.kubernetes_version }}
         timeout-minutes: 10
       - run: npm run test:functional
+        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         env:
           IS_GITHUB: 'true'
         timeout-minutes: 2
