@@ -58,7 +58,7 @@ jobs:
         with:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
-          knative_serving: "v${{ inputs.knative_version }}"
+          knative_serving: "knative-v${{ inputs.knative_version }}"
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
