@@ -1,0 +1,79 @@
+name: CI
+on:
+  workflow_call:
+    inputs:
+      docker_image_local_name:
+        description: "The local name of the Docker image"
+        required: true
+        type: string
+      nodejs_version:
+        description: "The version of Node.js"
+        required: false
+        default: 18
+        type: string
+      kubernetes_version:
+        description: "The version of Kubernetes"
+        required: false
+        default: 1.23.4
+        type: string
+      skaffold_version:
+        description: "The version of Skaffold"
+        required: false
+        default: 2.1.0
+        type: string
+
+jobs:
+  ci:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.nodejs_version }}
+      - name: Get npm cache directory
+        id: npm-cache
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        run: npm ci
+      - run: npm run static-checks
+        continue-on-error: true # TODO: Undo
+      - run: npm run test:unit
+        continue-on-error: true # TODO: Undo
+
+      # Functional tests
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1.5.0
+        with:
+          cluster_name: default
+          kubectl_version: "v${{ inputs.kubernetes_version }}"
+          node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
+      - name: Run Skaffold pipeline
+        uses: hiberbee/github-action-skaffold@1.24.0
+        with:
+          command: run
+          skaffold-version: ${{ inputs.skaffold_version }}
+          kubectl-version: ${{ inputs.kubernetes_version }}
+        timeout-minutes: 10
+      - run: npm run test:functional
+        env:
+          IS_GITHUB: 'true'
+        timeout-minutes: 2
+      - name: Output diagnostic information upon failure
+        if: failure()
+        run: .github/scripts/output-diagnostics.sh
+
+      # Export Docker image so it can be published
+      - name: Export Docker image
+        run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp/docker-image

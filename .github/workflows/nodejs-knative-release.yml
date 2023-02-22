@@ -1,0 +1,63 @@
+name: Release
+on:
+  workflow_call:
+    inputs:
+      main_branch:
+        description: "The main branch"
+        required: true
+        type: string
+      nodejs_version:
+        description: "The version of Node.js to use"
+        required: false
+        default: 18
+        type: string
+
+    secrets:
+      ghcr_password:
+        description: "GitHub Container Registry password"
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.nodejs_version }}
+      - name: Get npm cache directory
+        id: npm-cache
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Download Docker image
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp
+      - name: Import Docker image
+        run: docker load -i /tmp/docker-image
+      - name: Log in to GitHub Container Registry
+        if: github.ref == format('refs/heads/{0}', inputs.main_branch)
+        uses: azure/docker-login@v1.0.1
+        with:
+          login-server: ghcr.io
+          username: irelaybot
+          password: ${{ secrets.ghcr_password }}
+      - name: Publish Docker image
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          semantic_version: 18.0.1
+          extra_plugins: |
+            @semantic-release/exec@^6.0.3
+            @semantic-release/git@^10.0.1
+            @semantic-release/changelog@6.0.1
+            conventional-changelog-conventionalcommits@4.6.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
