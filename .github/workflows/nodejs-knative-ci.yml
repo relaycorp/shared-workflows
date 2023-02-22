@@ -14,7 +14,7 @@ on:
       kubernetes_version:
         description: "The version of Kubernetes"
         required: false
-        default: 1.23.4
+        default: 1.25.3
         type: string
       knative_version:
         description: "The version of Knative"
@@ -52,12 +52,28 @@ jobs:
       - run: npm test
 
       # Functional tests
-      - name: Create Kind cluster
-        uses: container-tools/kind-action@v2
-        with:
-          cluster_name: default
-          kubectl_version: "v${{ inputs.kubernetes_version }}"
-          knative_serving: "v${{ inputs.knative_version }}"
+      - name: Setup Knative
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          set -x
+
+          mkdir -p "${BIN_PATH}"
+
+          wget --quiet -O "${BIN_PATH}/kn" "https://github.com/knative/client/releases/download/knative-v$KN_VERSION/kn-linux-amd64"
+          chmod +x "${BIN_PATH}/kn"
+
+          wget --quiet -O "${BIN_PATH}/kn-quickstart" "https://github.com/knative-sandbox/kn-plugin-quickstart/releases/download/knative-v$KN_VERSION/kn-quickstart-linux-amd64"
+          chmod +x "${BIN_PATH}/kn-quickstart"
+
+          kn quickstart kind --kubernetes-version "${KUBERNETES_VERSION}" --name default
+          kind get clusters
+        env:
+          KN_VERSION: "${{ inputs.knative_version }}"
+          KUBERNETES_VERSION: "${{ inputs.kubernetes_version }}"
+          BIN_PATH: /home/runner/.local/bin
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
