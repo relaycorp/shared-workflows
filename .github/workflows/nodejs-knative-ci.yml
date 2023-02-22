@@ -16,6 +16,11 @@ on:
         required: false
         default: 1.23.4
         type: string
+      knative_version:
+        description: "The version of Knative"
+        required: false
+        default: 2.1.0
+        type: string
       skaffold_version:
         description: "The version of Skaffold"
         required: false
@@ -49,11 +54,11 @@ jobs:
 
       # Functional tests
       - name: Create Kind cluster
-        uses: helm/kind-action@v1.5.0
+        uses: container-tools/kind-action@v2
         with:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
-          node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
+          knative_serving: "v${{ inputs.knative_version }}"
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
