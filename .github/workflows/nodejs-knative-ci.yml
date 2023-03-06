@@ -118,7 +118,13 @@ jobs:
 
       # Export Docker image so it can be published
       - name: Export Docker image
-        run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+          
+          DOCKER_IMAGE="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.ID}}' | tail -1)"
+          docker save -o /tmp/docker-image "${DOCKER_IMAGE}"
         timeout-minutes: 3
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
