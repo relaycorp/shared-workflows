@@ -32,23 +32,30 @@ jobs:
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v3
+        timeout-minutes: 2
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.nodejs_version }}
+        timeout-minutes: 2
       - name: Get npm cache directory
         id: npm-cache
         shell: bash
         run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+        timeout-minutes: 5
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
+        timeout-minutes: 5
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 5
       - run: npm run static-checks
+        timeout-minutes: 5
       - run: npm test
+        timeout-minutes: 10
 
       # Functional tests
       - name: Create Kind cluster
@@ -56,6 +63,7 @@ jobs:
         with:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
+        timeout-minutes: 2
       - name: Setup Knative
         run: |-
           set -o nounset
@@ -95,6 +103,7 @@ jobs:
           kubectl apply -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-default-domain.yaml"
         env:
           KN_VERSION: ${{ inputs.knative_version }}
+        timeout-minutes: 3
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
@@ -105,17 +114,20 @@ jobs:
       - run: npm run test:functional
         env:
           IS_GITHUB: 'true'
-        timeout-minutes: 2
+        timeout-minutes: 3
 
       # Export Docker image so it can be published
       - name: Export Docker image
         run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
+        timeout-minutes: 3
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
           path: /tmp/docker-image
+        timeout-minutes: 5
 
       - name: Output diagnostic information upon failure
         if: failure()
         run: .github/scripts/output-diagnostics.sh
+        timeout-minutes: 2
