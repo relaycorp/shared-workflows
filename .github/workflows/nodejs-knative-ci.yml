@@ -83,7 +83,7 @@ jobs:
             --type merge \
             --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
-          // Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104
+          echo "Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104"
           kubectl patch deployment/3scale-kourier-gateway \
             --namespace kourier-system \
             --type json \
