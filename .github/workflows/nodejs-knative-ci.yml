@@ -48,7 +48,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - run: npm run static-checks
-        continue-on-error: true # TODO: Undo
       - run: npm test
 
       # Functional tests
