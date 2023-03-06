@@ -52,11 +52,49 @@ jobs:
 
       # Functional tests
       - name: Create Kind cluster
-        uses: container-tools/kind-action@v2
+        uses: helm/kind-action@v1.5.0
         with:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
-          knative_serving: "v${{ inputs.knative_version }}"
+      - name: Setup Knative
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+          set -x
+
+          echo "Installing knative serving..."
+          kubectl apply \
+            -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-crds.yaml"
+          kubectl apply \
+            -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-core.yaml"
+          kubectl rollout status deployment activator -n knative-serving --timeout=90s
+          kubectl rollout status deployment autoscaler -n knative-serving --timeout=90s
+          kubectl rollout status deployment controller -n knative-serving --timeout=90s
+          kubectl rollout status deployment domain-mapping -n knative-serving --timeout=90s
+          kubectl rollout status deployment domainmapping-webhook -n knative-serving --timeout=90s
+          kubectl rollout status deployment webhook -n knative-serving --timeout=90s
+
+          echo "Installing kourier..."
+          kubectl apply \
+            -f "https://github.com/knative/net-kourier/releases/download/knative-v${KN_VERSION}/kourier.yaml"
+          kubectl patch configmap/config-network \
+            --namespace knative-serving \
+            --type merge \
+            --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
+
+          echo "Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104"
+          kubectl patch deployment/3scale-kourier-gateway \
+            --namespace kourier-system \
+            --type json \
+            -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/resources"}]'
+
+          kubectl rollout status deployment net-kourier-controller -n knative-serving --timeout=90s
+          kubectl rollout status deployment 3scale-kourier-gateway -n kourier-system --timeout=20s
+
+          kubectl apply -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-default-domain.yaml"
+        env:
+          KN_VERSION: ${{ inputs.knative_version }}
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
