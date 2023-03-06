@@ -51,31 +51,51 @@ jobs:
       - run: npm test
 
       # Functional tests
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1.5.0
+        with:
+          cluster_name: default
+          kubectl_version: "v${{ inputs.kubernetes_version }}"
       - name: Setup Knative
-        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         run: |-
           set -o nounset
           set -o errexit
           set -o pipefail
-
           set -x
 
-          mkdir -p "${BIN_PATH}"
+          echo "Installing knative serving..."
+          kubectl apply \
+            -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-crds.yaml"
+          kubectl apply \
+            -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-core.yaml"
+          kubectl rollout status deployment activator -n knative-serving --timeout=90s
+          kubectl rollout status deployment autoscaler -n knative-serving --timeout=90s
+          kubectl rollout status deployment controller -n knative-serving --timeout=90s
+          kubectl rollout status deployment domain-mapping -n knative-serving --timeout=90s
+          kubectl rollout status deployment domainmapping-webhook -n knative-serving --timeout=90s
+          kubectl rollout status deployment webhook -n knative-serving --timeout=90s
 
-          wget --quiet -O "${BIN_PATH}/kn" "https://github.com/knative/client/releases/download/knative-v$KN_VERSION/kn-linux-amd64"
-          chmod +x "${BIN_PATH}/kn"
+          echo "Installing kourier..."
+          kubectl apply \
+            -f "https://github.com/knative/net-kourier/releases/download/knative-v${KN_VERSION}/kourier.yaml"
+          kubectl patch configmap/config-network \
+            --namespace knative-serving \
+            --type merge \
+            --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
-          wget --quiet -O "${BIN_PATH}/kn-quickstart" "https://github.com/knative-sandbox/kn-plugin-quickstart/releases/download/knative-v$KN_VERSION/kn-quickstart-linux-amd64"
-          chmod +x "${BIN_PATH}/kn-quickstart"
+          // Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104
+          kubectl patch deployment/3scale-kourier-gateway \
+            --namespace kourier-system \
+            --type json \
+            -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/resources"}]'
 
-          kn quickstart kind --kubernetes-version "${KUBERNETES_VERSION}" --name default
-          kind get clusters
+          kubectl rollout status deployment net-kourier-controller -n knative-serving --timeout=90s
+          kubectl rollout status deployment 3scale-kourier-gateway -n kourier-system --timeout=20s
+
+          kubectl apply -f "https://github.com/knative/serving/releases/download/knative-v${KN_VERSION}/serving-default-domain.yaml"
         env:
-          KN_VERSION: "${{ inputs.knative_version }}"
-          KUBERNETES_VERSION: "${{ inputs.kubernetes_version }}"
-          BIN_PATH: /home/runner/.local/bin
+          KN_VERSION: ${{ inputs.knative_version }}
       - name: Run Skaffold pipeline
-        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
           command: run
@@ -83,7 +103,6 @@ jobs:
           kubectl-version: ${{ inputs.kubernetes_version }}
         timeout-minutes: 10
       - run: npm run test:functional
-        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         env:
           IS_GITHUB: 'true'
         timeout-minutes: 2
@@ -93,10 +112,8 @@ jobs:
 
       # Export Docker image so it can be published
       - name: Export Docker image
-        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
       - name: Upload Docker image
-        if: false   # TODO: https://github.com/relaycorp/veraid-authority/issues/22
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
