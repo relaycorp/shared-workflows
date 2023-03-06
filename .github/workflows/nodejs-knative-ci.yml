@@ -106,9 +106,6 @@ jobs:
         env:
           IS_GITHUB: 'true'
         timeout-minutes: 2
-      - name: Output diagnostic information upon failure
-        if: failure()
-        run: .github/scripts/output-diagnostics.sh
 
       # Export Docker image so it can be published
       - name: Export Docker image
@@ -118,3 +115,7 @@ jobs:
         with:
           name: docker-image
           path: /tmp/docker-image
+
+      - name: Output diagnostic information upon failure
+        if: failure()
+        run: .github/scripts/output-diagnostics.sh
