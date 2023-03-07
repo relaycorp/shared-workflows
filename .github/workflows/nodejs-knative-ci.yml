@@ -124,7 +124,8 @@ jobs:
           set -o pipefail
           
           DOCKER_IMAGE_TAG="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.Tag}}' | tail -1)"
-          docker save -o /tmp/docker-image "${{ inputs.docker_image_local_name }}:${DOCKER_IMAGE_TAG}"
+          docker tag "${GITHUB_REPOSITORY}:ci" "${{ inputs.docker_image_local_name }}:${DOCKER_IMAGE_TAG}"
+          docker save -o /tmp/docker-image "${GITHUB_REPOSITORY}:ci"
         timeout-minutes: 3
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
