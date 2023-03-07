@@ -27,33 +27,45 @@ jobs:
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v3
+        timeout-minutes: 2
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.nodejs_version }}
+        timeout-minutes: 2
       - name: Get npm cache directory
         id: npm-cache
         shell: bash
         run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+        timeout-minutes: 5
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
+        timeout-minutes: 5
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 5
       - run: npm run static-checks
+        timeout-minutes: 3
       - run: npm run test:unit
+        timeout-minutes: 5
 
       - uses: azure/setup-helm@v3
         with:
           version: v3.7.0
+        timeout-minutes: 2
 
       # Check the main chart and the one for backing services
       - run: helm dependency update chart/
+        timeout-minutes: 2
       - run: helm dependency update chart/dev-backing-services
+        timeout-minutes: 2
       - run: helm lint chart/ --values=chart/values.dev.yml --strict
+        timeout-minutes: 2
       - run: helm lint chart/dev-backing-services --values=chart/dev-backing-services/values.yml --strict
+        timeout-minutes: 2
 
       # Functional tests
       - name: Create Kind cluster
@@ -62,6 +74,7 @@ jobs:
           cluster_name: default
           kubectl_version: "v${{ inputs.kubernetes_version }}"
           node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
+        timeout-minutes: 2
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
@@ -71,6 +84,7 @@ jobs:
         timeout-minutes: 10
       - name: Start port-forwarding
         run: .github/scripts/port-forward.sh
+        timeout-minutes: 2
       - run: npm run test:functional
         env:
           IS_GITHUB: 'true'
@@ -78,12 +92,15 @@ jobs:
       - name: Output diagnostic information upon failure
         if: failure()
         run: .github/scripts/output-diagnostics.sh
+        timeout-minutes: 2
 
       # Export Docker image so it can be published
       - name: Export Docker image
         run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
+        timeout-minutes: 2
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
           path: /tmp/docker-image
+        timeout-minutes: 2

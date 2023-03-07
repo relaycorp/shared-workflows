@@ -53,9 +53,9 @@ jobs:
         run: npm ci
         timeout-minutes: 5
       - run: npm run static-checks
-        timeout-minutes: 5
+        timeout-minutes: 3
       - run: npm test
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       # Functional tests
       - name: Create Kind cluster
