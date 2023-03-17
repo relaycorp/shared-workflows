@@ -31,7 +31,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - uses: eskatos/gradle-command-action@v2
-        name: gradle
+        id: gradle
         with:
           arguments: check
 
