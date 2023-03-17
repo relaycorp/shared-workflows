@@ -37,7 +37,7 @@ jobs:
 
       - name: "Post Gradle Build Scan to PR"
         uses: actions/github-script@v5
-        if: github.event_name == 'pull_request' && steps.gradle.outcome == 'failure'
+        if: failure() && steps.gradle.outcome == 'failure' && github.event_name == 'pull_request'
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
