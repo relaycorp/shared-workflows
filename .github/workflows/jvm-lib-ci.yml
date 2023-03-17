@@ -37,7 +37,7 @@ jobs:
 
       - name: "Add build scan URL as PR comment"
         uses: actions/github-script@v5
-        if: steps.build.outcome == 'failure'
+        if: steps.gradle.outcome == 'failure'
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
