@@ -32,4 +32,17 @@ jobs:
 
       - uses: eskatos/gradle-command-action@v2
         with:
-          arguments: check
+          arguments: check --scan
+
+      - name: "Add build scan URL as PR comment"
+        uses: actions/github-script@v5
+        if: github.event_name == 'pull_request' && failure()
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ github.workflow }} failed. [Go to Build Scan](${{ steps.gradle.outputs.build-scan-url }}).'
+            })
