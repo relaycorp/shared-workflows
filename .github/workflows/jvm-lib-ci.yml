@@ -35,9 +35,9 @@ jobs:
         with:
           arguments: check
 
-      - name: "Add build scan URL as PR comment"
+      - name: "Post Gradle Build Scan to PR"
         uses: actions/github-script@v5
-        if: steps.gradle.outcome == 'failure'
+        if: github.event_name == 'pull_request' && steps.gradle.outcome == 'failure'
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
