@@ -6,6 +6,10 @@ on:
         description: "The local name of the Docker image"
         required: true
         type: string
+      dockerhub_username:
+        description: "The Docker Hub username"
+        required: true
+        type: string
       nodejs_version:
         description: "The version of Node.js"
         required: false
@@ -26,6 +30,10 @@ on:
         required: false
         default: 2.1.0
         type: string
+    secrets:
+      dockerhub_password:
+        description: "The Docker Hub password"
+        required: true
 
 jobs:
   ci:
@@ -104,6 +112,12 @@ jobs:
         env:
           KN_VERSION: ${{ inputs.knative_version }}
         timeout-minutes: 3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ inputs.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+        timeout-minutes: 2
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
