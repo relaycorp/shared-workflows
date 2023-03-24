@@ -7,17 +7,6 @@ on:
         required: false
         type: boolean
         default: true
-    secrets:
-      maven_username:
-        required: true
-      maven_password:
-        required: true
-      maven_central_signing_key_id:
-        required: true
-      maven_central_signing_key:
-        required: true
-      maven_central_signing_key_password:
-        required: true
 
 jobs:
   release:
@@ -63,8 +52,3 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAVEN_USERNAME: ${{ secrets.maven_username }}
-          MAVEN_PASSWORD: ${{ secrets.maven_password }}
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.maven_central_signing_key_id }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.maven_central_signing_key }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.maven_central_signing_key_password }}
