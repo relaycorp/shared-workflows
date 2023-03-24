@@ -1,14 +1,19 @@
 name: Run CI
 on:
   workflow_call:
+    inputs:
+      java_versions:
+        type: string
+        default: "[11, 17]"
+        required: false
+        description: "The Java versions to test against (defaults to LTSs)"
 
 jobs:
   test:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        # Test LTS releases
-        java: [11, 17]
+        java: ${{ fromJson(inputs.java_versions) }}
     name: "java${{ matrix.java }}-${{ matrix.os }}" # Do not change; used by protected branches
     runs-on: ${{ matrix.os }}
     steps:
