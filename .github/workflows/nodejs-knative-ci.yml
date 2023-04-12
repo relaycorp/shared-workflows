@@ -91,7 +91,7 @@ jobs:
             https://github.com/knative-sandbox/kn-plugin-quickstart/releases/download/knative-v${KN_VERSION}/kn-quickstart-linux-amd64
           chmod +x /usr/local/bin/kn-quickstart
 
-          kn quickstart kind --name=default --kubernetes-version=${KUBERNETES_VERSION}
+          time kn quickstart kind --name=default --kubernetes-version=${KUBERNETES_VERSION}
         env:
           KN_VERSION: ${{ inputs.knative_version }}
           KUBERNETES_VERSION: ${{ inputs.kubernetes_version }}
