@@ -77,7 +77,6 @@ jobs:
           set -o nounset
           set -o errexit
           set -o pipefail
-          set -x
 
           echo "Installing kn..."
           curl -L \
@@ -96,6 +95,13 @@ jobs:
             --kubernetes-version=${KUBERNETES_VERSION} \
             --install-serving \
             --install-eventing
+          
+          echo "Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104"
+          kubectl patch deployment/3scale-kourier-gateway \
+            --namespace kourier-system \
+            --type json \
+            -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/resources"}]'
+
         env:
           KN_VERSION: ${{ inputs.knative_version }}
           KUBERNETES_VERSION: ${{ inputs.kubernetes_version }}
