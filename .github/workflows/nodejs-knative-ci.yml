@@ -149,7 +149,6 @@ jobs:
       - name: Output diagnostic information upon failure
         if: failure()
         run: |-
-          #!/bin/bash
           set -o nounset
           set -o errexit
           set -o pipefail
