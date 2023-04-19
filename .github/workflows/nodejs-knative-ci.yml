@@ -122,7 +122,7 @@ jobs:
           command: run
           skaffold-version: ${{ inputs.skaffold_version }}
           kubectl-version: ${{ inputs.kubernetes_version }}
-        timeout-minutes: 3
+        timeout-minutes: 5
       - run: npm run test:functional
         env:
           IS_GITHUB: 'true'
