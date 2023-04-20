@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: true
+      dokka_docs_path:
+        description: "The path to the Dokka documentation"
+        required: false
+        type: string
+        default: "./build/dokka/html"
 
 jobs:
   release:
@@ -45,7 +50,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           publish_branch: gh-pages
-          publish_dir: ./build/dokka/html
+          publish_dir: ${{ inputs.dokka_docs_path }}
           allow_empty_commit: false
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
