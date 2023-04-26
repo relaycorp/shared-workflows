@@ -123,6 +123,9 @@ jobs:
           skaffold-version: ${{ inputs.skaffold_version }}
           kubectl-version: ${{ inputs.kubernetes_version }}
         timeout-minutes: 5
+      - name: Start port-forwarding
+        run: .github/scripts/port-forward.sh
+        timeout-minutes: 2
       - run: npm run test:functional
         env:
           IS_GITHUB: 'true'
