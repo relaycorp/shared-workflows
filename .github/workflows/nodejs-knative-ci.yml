@@ -164,8 +164,14 @@ jobs:
 
           # Main
 
+          print_header '$PATH'
+          echo "${PATH}"
+
           print_header "Images"
           docker images
+
+          print_header "Knative services"
+          kn service list
 
           print_header "Kubernetes resources"
           kubectl get all --all-namespaces
