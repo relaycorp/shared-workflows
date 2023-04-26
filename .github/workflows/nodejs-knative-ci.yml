@@ -167,6 +167,9 @@ jobs:
           print_header "Images"
           docker images
 
+          print_header "Knative services"
+          kn service list
+
           print_header "Kubernetes resources"
           kubectl get all --all-namespaces
 
