@@ -70,12 +70,12 @@ jobs:
         timeout-minutes: 5
 
       # Functional tests
-      - name: Create Kind cluster
-        uses: helm/kind-action@v1.5.0
+      - name: Create cluster
+        uses: medyagh/setup-minikube@v0.0.13
         with:
-          cluster_name: default
-          kubectl_version: "v${{ inputs.kubernetes_version }}"
-        timeout-minutes: 2
+          minikube-version: '1.28.0'
+          kubernetes-version: "v${{ inputs.kubernetes_version }}"
+        timeout-minutes: 5
       - name: Setup Knative
         run: |-
           set -o nounset
@@ -94,8 +94,7 @@ jobs:
             https://github.com/knative-sandbox/kn-plugin-quickstart/releases/download/knative-v${KN_VERSION}/kn-quickstart-linux-amd64
           chmod +x /usr/local/bin/kn-quickstart
 
-          kn quickstart kind \
-            --name=default \
+          kn quickstart minikube \
             --kubernetes-version=${KUBERNETES_VERSION} \
             --install-serving \
             --install-eventing
@@ -106,6 +105,7 @@ jobs:
             --type json \
             -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/resources"}]'
 
+          minikube tunnel -p knative >>/tmp/minikube-tunnel.logs 2>&1 &
         env:
           KN_VERSION: ${{ inputs.knative_version }}
           KUBERNETES_VERSION: ${{ inputs.kubernetes_version }}
@@ -124,8 +124,6 @@ jobs:
           kubectl-version: ${{ inputs.kubernetes_version }}
         timeout-minutes: 5
       - run: npm run test:functional
-        env:
-          IS_GITHUB: 'true'
         timeout-minutes: 3
 
       # Export Docker image so it can be published
@@ -158,6 +156,7 @@ jobs:
           print_header() {
             local title="$1"
 
+            echo
             printf '#%.0s' {1..50}
             echo " ${title}"
           }
@@ -178,6 +177,9 @@ jobs:
 
           print_header "App logs"
           kubectl logs --prefix --all-containers=true -l "app.kubernetes.io/name=${KUBERNETES_APP_NAME}"
+
+          print_header "Minikube tunnel logs"
+          cat /tmp/minikube-tunnel.logs
         env:
           KUBERNETES_APP_NAME: ${{ inputs.kubernetes_app_name }}
         timeout-minutes: 2
