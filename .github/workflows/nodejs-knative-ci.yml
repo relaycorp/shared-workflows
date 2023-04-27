@@ -133,6 +133,8 @@ jobs:
           set -o errexit
           set -o pipefail
           
+          eval $(minikube docker-env)
+
           DOCKER_IMAGE_TAG="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.Tag}}' | tail -1)"
           docker tag "${{ inputs.docker_image_local_name }}:${DOCKER_IMAGE_TAG}" "${GITHUB_REPOSITORY}:ci"
           docker save -o /tmp/docker-image "${GITHUB_REPOSITORY}:ci"
@@ -163,8 +165,13 @@ jobs:
 
           # Main
 
-          print_header "Images"
+          print_header "Local Docker mages"
           docker images
+
+          print_header "Minikube Docker mages"
+          eval $(minikube docker-env)
+          docker images
+          eval $(minikube docker-env --unset)
 
           print_header "Knative services"
           kn service list
