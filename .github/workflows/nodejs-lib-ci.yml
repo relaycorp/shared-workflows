@@ -4,7 +4,7 @@ on:
     inputs:
       nodejs_versions:
         type: string
-        default: "[14, 16, 18]"
+        default: "[16, 18, 20]"
         required: false
       restrict_integration_tests_to_ubuntu:
         description: "Whether the integration tests should only be run on Ubuntu"
