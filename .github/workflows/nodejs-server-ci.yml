@@ -49,7 +49,7 @@ jobs:
         timeout-minutes: 5
       - run: npm run static-checks
         timeout-minutes: 3
-      - run: npm run test:unit
+      - run: npm run test
         timeout-minutes: 5
 
       - uses: azure/setup-helm@v3
