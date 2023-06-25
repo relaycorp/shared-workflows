@@ -123,8 +123,16 @@ jobs:
           skaffold-version: ${{ inputs.skaffold_version }}
           kubectl-version: ${{ inputs.kubernetes_version }}
         timeout-minutes: 5
-      - run: npm run test:functional
+      - name: Functional tests
         timeout-minutes: 3
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+          
+          # Wait for backing services (e.g., MongoDB) and app to be ready
+          sleep 5s
+          npm run test:functional
 
       # Export Docker image so it can be published
       - name: Export Docker image
