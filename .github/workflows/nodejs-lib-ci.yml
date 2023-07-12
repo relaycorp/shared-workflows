@@ -2,10 +2,6 @@ name: Run CI
 on:
   workflow_call:
     inputs:
-      nodejs_versions:
-        type: string
-        default: "[16, 18, 20]"
-        required: false
       restrict_integration_tests_to_ubuntu:
         description: "Whether the integration tests should only be run on Ubuntu"
         required: false
@@ -41,7 +37,7 @@ jobs:
     needs: static-checks
     strategy:
       matrix:
-        node: ${{ fromJson(inputs.nodejs_versions) }}
+        node: [16, 18, 20]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     name: "test-nodejs${{ matrix.node }}-${{ matrix.os }}"
