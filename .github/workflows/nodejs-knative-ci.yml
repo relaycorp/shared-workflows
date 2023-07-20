@@ -126,7 +126,7 @@ jobs:
             -o /usr/local/bin/skaffold \
             "https://storage.googleapis.com/skaffold/releases/v${SKAFFOLD_VERSION}/skaffold-linux-amd64"
           
-          chmod +x skaffold
+          chmod +x /usr/local/bin/skaffold
         env:
           SKAFFOLD_VERSION: ${{ inputs.skaffold_version }}
         timeout-minutes: 2
