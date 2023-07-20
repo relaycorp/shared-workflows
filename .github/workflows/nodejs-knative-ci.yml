@@ -131,7 +131,7 @@ jobs:
           set -o pipefail
           
           # Wait for backing services (e.g., MongoDB) and app to be ready
-          sleep 5s
+          sleep 10s
           npm run test:functional
 
       # Export Docker image so it can be published
