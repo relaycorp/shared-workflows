@@ -116,13 +116,28 @@ jobs:
           username: ${{ inputs.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
         timeout-minutes: 2
+      - name: Install Skaffold
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          curl -L \
+            -o /usr/local/bin/skaffold \
+            "https://storage.googleapis.com/skaffold/releases/v${SKAFFOLD_VERSION}/skaffold-linux-amd64"
+          
+          chmod +x skaffold
+        env:
+          SKAFFOLD_VERSION: ${{ inputs.skaffold_version }}
+        timeout-minutes: 2
       - name: Run Skaffold pipeline
-        uses: hiberbee/github-action-skaffold@1.27.0
-        with:
-          command: run
-          skaffold-version: ${{ inputs.skaffold_version }}
-          kubectl-version: ${{ inputs.kubernetes_version }}
-        timeout-minutes: 10
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          skaffold --verbosity=debug run
+        timeout-minutes: 5
       - name: Functional tests
         timeout-minutes: 3
         run: |-
