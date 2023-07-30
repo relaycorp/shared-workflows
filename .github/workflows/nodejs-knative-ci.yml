@@ -15,10 +15,6 @@ on:
         required: false
         default: 1.25.3
         type: string
-      kubernetes_app_name:
-        description: "Name of Kubernetes app (used to debug failures)"
-        required: true
-        type: string
       knative_version:
         description: "The version of Knative"
         required: false
@@ -200,16 +196,14 @@ jobs:
           kubectl get all --all-namespaces
 
           print_header "App pods"
-          kubectl describe pod -l "app.kubernetes.io/name=${KUBERNETES_APP_NAME}"
+          kubectl describe pod
 
           print_header "App logs"
-          kubectl logs --prefix --all-containers=true -l "app.kubernetes.io/name=${KUBERNETES_APP_NAME}"
+          kubectl logs --prefix --all-containers=true
 
           print_header "Minikube tunnel logs"
           cat /tmp/minikube-tunnel.logs
 
           print_header "Minikube status"
           minikube status -p knative
-        env:
-          KUBERNETES_APP_NAME: ${{ inputs.kubernetes_app_name }}
         timeout-minutes: 2
