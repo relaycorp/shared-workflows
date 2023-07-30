@@ -71,10 +71,12 @@ jobs:
 
       # Functional tests
       - name: Create cluster
-        uses: medyagh/setup-minikube@v0.0.13
+        uses: medyagh/setup-minikube@v0.0.14
         with:
           minikube-version: '1.30.1'
-          kubernetes-version: "v${{ inputs.kubernetes_version }}"
+          kubernetes-version: 'v${{ inputs.kubernetes_version }}'
+          cpus: max
+          memory: 6000m
         timeout-minutes: 5
       - name: Setup Knative
         run: |-
@@ -87,7 +89,7 @@ jobs:
             -o /usr/local/bin/kn \
             https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/kn-linux-amd64
           chmod +x /usr/local/bin/kn
-          
+
           echo "Installing kn-quickstart..."
           curl -L \
             -o /usr/local/bin/kn-quickstart \
@@ -98,12 +100,6 @@ jobs:
             --kubernetes-version=${KUBERNETES_VERSION} \
             --install-serving \
             --install-eventing
-          
-          echo "Work around https://github.com/knative-sandbox/kn-plugin-quickstart/issues/104"
-          kubectl patch deployment/3scale-kourier-gateway \
-            --namespace kourier-system \
-            --type json \
-            -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/resources"}]'
 
           minikube tunnel -p knative >>/tmp/minikube-tunnel.logs 2>&1 &
         env:
@@ -125,29 +121,41 @@ jobs:
           curl -L \
             -o /usr/local/bin/skaffold \
             "https://storage.googleapis.com/skaffold/releases/v${SKAFFOLD_VERSION}/skaffold-linux-amd64"
-          
+
           chmod +x /usr/local/bin/skaffold
         env:
           SKAFFOLD_VERSION: ${{ inputs.skaffold_version }}
         timeout-minutes: 2
-      - name: Run Skaffold pipeline
+      - run: skaffold run
+        timeout-minutes: 5
+      - name: Wait for Kubernetes resources
         run: |-
           set -o nounset
           set -o errexit
           set -o pipefail
+          set -x
 
-          skaffold --verbosity=debug run
+          function kubectl-wait() {
+            local resource="$1"
+            local timeout="$2"
+            kubectl wait "$resource" --for=condition=ready "--timeout=$timeout" --all
+          }
+          function kubectl-wait-if-present() {
+            local resource="$1"
+            local timeout="$2"
+            if kubectl get "$resource" --ignore-not-found | grep -q .; then
+              kubectl-wait "$resource" "$timeout"
+            fi
+          }
+
+          kubectl-wait-if-present job 5m
+          kubectl-wait-if-present broker.eventing.knative.dev 2m
+          kubectl-wait-if-present trigger.eventing.knative.dev 2m
+          kubectl-wait service.serving.knative.dev 2m
         timeout-minutes: 5
       - name: Functional tests
-        timeout-minutes: 3
-        run: |-
-          set -o nounset
-          set -o errexit
-          set -o pipefail
-          
-          # Wait for backing services (e.g., MongoDB) and app to be ready
-          sleep 30s
-          npm run test:functional
+        timeout-minutes: 5
+        run: npm run test:functional
 
       # Export Docker image so it can be published
       - name: Export Docker image
@@ -155,7 +163,7 @@ jobs:
           set -o nounset
           set -o errexit
           set -o pipefail
-          
+
           eval $(minikube docker-env -p knative)
 
           DOCKER_IMAGE_TAG="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.Tag}}' | tail -1)"
@@ -188,7 +196,7 @@ jobs:
 
           # Main
 
-          print_header "Local Docker mages"
+          print_header "Local Docker images"
           docker images
 
           print_header "Minikube Docker mages"
@@ -197,7 +205,7 @@ jobs:
           eval $(minikube docker-env -p knative --unset)
 
           print_header "Knative services"
-          kn service list
+          kn service list || true
 
           print_header "Kubernetes resources"
           kubectl get all --all-namespaces
@@ -210,6 +218,9 @@ jobs:
 
           print_header "Minikube tunnel logs"
           cat /tmp/minikube-tunnel.logs
+
+          print_header "Minikube status"
+          minikube status -p knative
         env:
           KUBERNETES_APP_NAME: ${{ inputs.kubernetes_app_name }}
         timeout-minutes: 2
