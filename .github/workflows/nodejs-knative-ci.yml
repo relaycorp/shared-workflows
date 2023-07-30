@@ -10,11 +10,6 @@ on:
         description: "The Docker Hub username"
         required: true
         type: string
-      nodejs_version:
-        description: "The version of Node.js"
-        required: false
-        default: 18
-        type: string
       kubernetes_version:
         description: "The version of Kubernetes"
         required: false
@@ -48,7 +43,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.nodejs_version }}
+          node-version-file: '.nvmrc'
         timeout-minutes: 2
       - name: Get npm cache directory
         id: npm-cache
@@ -59,7 +54,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
-          key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ hashFiles('**/package-lock.json', '.nvmrc') }}
         timeout-minutes: 5
       - name: Install dependencies
         run: npm ci
