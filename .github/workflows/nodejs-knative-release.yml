@@ -7,6 +7,14 @@ on:
         required: false
         default: 18
         type: string
+      dockerhub_username:
+        description: "The Docker Hub username"
+        required: true
+        type: string
+    secrets:
+      dockerhub_password:
+        description: "The Docker Hub password"
+        required: true
 
 jobs:
   release:
@@ -34,9 +42,21 @@ jobs:
           path: /tmp
       - name: Import Docker image
         run: docker load -i /tmp/docker-image
+      - name: Log in to Docker Hub
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: docker/login-action@v2
+        with:
+          username: ${{ inputs.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+        timeout-minutes: 1
       - name: Log in to GitHub Container Registry
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        timeout-minutes: 1
       - name: Publish Docker image
         uses: cycjimmy/semantic-release-action@v3
         with:
