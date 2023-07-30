@@ -148,10 +148,11 @@ jobs:
             fi
           }
 
+          # Check our resources first to give Knative Eventing more time as it's slower
           kubectl-wait-if-present job complete
+          kubectl-wait service.serving.knative.dev ready
           kubectl-wait-if-present broker.eventing.knative.dev ready
           kubectl-wait-if-present trigger.eventing.knative.dev ready
-          kubectl-wait service.serving.knative.dev ready
         timeout-minutes: 10
       - name: Functional tests
         timeout-minutes: 5
