@@ -199,7 +199,9 @@ jobs:
           kubectl describe pod
 
           print_header "App logs"
-          kubectl logs --prefix --all-containers=true
+          for pod in $(kubectl get pods -o name -n default); do
+            kubectl logs $pod --prefix -n default --all-containers=true --timestamps=true
+          done
 
           print_header "Minikube tunnel logs"
           cat /tmp/minikube-tunnel.logs
