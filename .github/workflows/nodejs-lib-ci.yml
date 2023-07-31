@@ -3,32 +3,7 @@ on:
   workflow_call:
 
 jobs:
-  static-checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Get npm cache directory
-        id: npm-cache
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.npm-cache.outputs.dir }}
-          key: root-${{ hashFiles('package-lock.json') }}
-      - name: npm ci
-        uses: nick-fields/retry@v2
-        with:
-          command: npm ci
-          timeout_minutes: 3
-          max_attempts: 3
-        timeout-minutes: 5
-      - run: npm run static-checks
-
   test:
-    needs: static-checks
     strategy:
       matrix:
         node: [16, 18, 20]
@@ -54,6 +29,8 @@ jobs:
           timeout_minutes: 3
           max_attempts: 3
         timeout-minutes: 10
+      - run: npm run static-checks
+        timeout-minutes: 3
       - run: npm test
         timeout-minutes: 10
       - run: npm run test:integration
