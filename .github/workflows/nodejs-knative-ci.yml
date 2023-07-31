@@ -143,8 +143,8 @@ jobs:
           kubectl-wait service.serving.knative.dev ready
 
           if [[ "${KNATIVE_EVENTING_ENABLED}" == "true" ]]; then
-            kubectl-wait-if-present broker.eventing.knative.dev ready
-            kubectl-wait-if-present trigger.eventing.knative.dev ready
+            kubectl-wait broker.eventing.knative.dev ready
+            kubectl-wait trigger.eventing.knative.dev ready
           fi
         env:
           KNATIVE_EVENTING_ENABLED: ${{ inputs.knative_eventing_enabled }}
