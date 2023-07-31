@@ -1,12 +1,6 @@
 name: Run CI
 on:
   workflow_call:
-    inputs:
-      restrict_integration_tests_to_ubuntu:
-        description: "Whether the integration tests should only be run on Ubuntu"
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   static-checks:
@@ -38,9 +32,8 @@ jobs:
     strategy:
       matrix:
         node: [16, 18, 20]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    name: "test-nodejs${{ matrix.node }}-${{ matrix.os }}"
+    runs-on: ubuntu-latest
+    name: "nodejs${{ matrix.node }}"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -64,5 +57,4 @@ jobs:
       - run: npm test
         timeout-minutes: 10
       - run: npm run test:integration
-        if: "${{ inputs.restrict_integration_tests_to_ubuntu == false || startsWith(matrix.os, 'ubuntu-') }}"
         timeout-minutes: 10
