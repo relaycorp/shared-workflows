@@ -23,8 +23,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
         timeout-minutes: 5
-      - name: Install dependencies
-        run: npm ci
+      - name: npm ci
+        uses: nick-fields/retry@v2
+        with:
+          command: npm ci
+          timeout_minutes: 3
+          max_attempts: 3
+        timeout-minutes: 10
       - name: Download Docker image
         uses: actions/download-artifact@v3
         with:
