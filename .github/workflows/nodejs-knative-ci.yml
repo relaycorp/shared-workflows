@@ -115,7 +115,7 @@ jobs:
           SKAFFOLD_VERSION: ${{ inputs.skaffold_version }}
         timeout-minutes: 2
       - run: skaffold run
-        timeout-minutes: 5
+        timeout-minutes: 10
       - name: Wait for Kubernetes resources
         run: |-
           set -o nounset
