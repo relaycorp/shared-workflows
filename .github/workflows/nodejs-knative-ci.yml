@@ -115,6 +115,7 @@ jobs:
             "https://storage.googleapis.com/skaffold/releases/v${SKAFFOLD_VERSION}/skaffold-linux-amd64"
 
           chmod +x /usr/local/bin/skaffold
+          skaffold config set --global collect-metrics false
         env:
           SKAFFOLD_VERSION: ${{ inputs.skaffold_version }}
         timeout-minutes: 2
