@@ -220,6 +220,12 @@ jobs:
             kubectl logs $pod --prefix -n default --all-containers=true --timestamps=true
           done
 
+          print_header "Knative Eventing"
+          kubectl describe pod -n knative-eventing
+          for pod in $(kubectl get pods -o name -n knative-eventing); do
+            kubectl logs $pod --prefix -n knative-eventing --all-containers=true --timestamps=true
+          done
+
           print_header "Minikube tunnel logs"
           cat /tmp/minikube-tunnel.logs
 
