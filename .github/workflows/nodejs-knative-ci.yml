@@ -131,7 +131,8 @@ jobs:
           function kubectl-wait() {
             local resource="$1"
             local condition="$2"
-            kubectl wait "$resource" "--for=condition=$condition" --timeout=5m --all
+            local timeout="${3:-5m}"
+            kubectl wait "$resource" "--for=condition=$condition" "--timeout=$timeout" --all
           }
           function kubectl-wait-if-present() {
             local resource="$1"
@@ -149,7 +150,7 @@ jobs:
 
           if [[ "${KNATIVE_EVENTING_ENABLED}" == "true" ]]; then
             kubectl-wait broker.eventing.knative.dev ready
-            kubectl-wait trigger.eventing.knative.dev ready
+            kubectl-wait trigger.eventing.knative.dev ready 10m
           fi
         env:
           KNATIVE_EVENTING_ENABLED: ${{ inputs.knative_eventing_enabled }}
