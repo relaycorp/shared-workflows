@@ -76,7 +76,7 @@ jobs:
           node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
         timeout-minutes: 2
       - name: Run Skaffold pipeline
-        uses: hiberbee/github-action-skaffold@1.24.0
+        uses: hiberbee/github-action-skaffold@1.27.0
         with:
           command: run
           skaffold-version: ${{ inputs.skaffold_version }}
