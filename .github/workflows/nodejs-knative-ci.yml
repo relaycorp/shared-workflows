@@ -146,7 +146,7 @@ jobs:
 
           # Check our resources first to give Knative Eventing even more time
           kubectl-wait-if-present job complete
-          kubectl-wait service.serving.knative.dev ready
+          kubectl-wait service.serving.knative.dev ready 10m
 
           if [[ "${KNATIVE_EVENTING_ENABLED}" == "true" ]]; then
             kubectl-wait broker.eventing.knative.dev ready
