@@ -68,13 +68,14 @@ jobs:
         timeout-minutes: 2
 
       # Functional tests
-      - name: Create Kind cluster
-        uses: helm/kind-action@v1.5.0
+      - name: Create cluster
+        uses: medyagh/setup-minikube@v0.0.14
         with:
-          cluster_name: default
-          kubectl_version: "v${{ inputs.kubernetes_version }}"
-          node_image: "kindest/node:v${{ inputs.kubernetes_version }}"
-        timeout-minutes: 2
+          minikube-version: '1.30.1'
+          kubernetes-version: 'v${{ inputs.kubernetes_version }}'
+          cpus: max
+          memory: 6000m
+        timeout-minutes: 5
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@1.24.0
         with:
