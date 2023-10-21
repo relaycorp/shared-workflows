@@ -90,18 +90,28 @@ jobs:
         env:
           IS_GITHUB: 'true'
         timeout-minutes: 2
-      - name: Output diagnostic information upon failure
-        if: failure()
-        run: .github/scripts/output-diagnostics.sh
-        timeout-minutes: 2
 
       # Export Docker image so it can be published
       - name: Export Docker image
-        run: docker save -o /tmp/docker-image ${{ inputs.docker_image_local_name }}:latest
-        timeout-minutes: 2
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          eval $(minikube docker-env)
+
+          DOCKER_IMAGE_TAG="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.Tag}}' | tail -1)"
+          docker tag "${{ inputs.docker_image_local_name }}:${DOCKER_IMAGE_TAG}" "${GITHUB_REPOSITORY}:ci"
+          docker save -o /tmp/docker-image "${GITHUB_REPOSITORY}:ci"
+        timeout-minutes: 3
       - name: Upload Docker image
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
           path: /tmp/docker-image
+        timeout-minutes: 2
+
+      - name: Output diagnostic information upon failure
+        if: failure()
+        run: .github/scripts/output-diagnostics.sh
         timeout-minutes: 2
