@@ -2,44 +2,34 @@ name: Release
 on:
   workflow_call:
     inputs:
-      main_branch:
-        description: "The main branch"
+      dockerhub_username:
+        description: "The Docker Hub username"
         required: true
         type: string
-      nodejs_version:
-        description: "The version of Node.js to use"
-        required: false
-        default: 16
-        type: string
-
     secrets:
-      helm_repo_access_token:
+      dockerhub_password:
+        description: "The Docker Hub password"
         required: true
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+        timeout-minutes: 2
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.nodejs_version }}
-      - name: Get npm cache directory
-        id: npm-cache
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-      - name: Cache dependencies
-        uses: actions/cache@v3
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+        timeout-minutes: 5
+      - name: npm ci
+        uses: nick-fields/retry@v2
         with:
-          path: ${{ steps.npm-cache.outputs.dir }}
-          key: ${{ runner.os }}-${{ inputs.nodejs_version }}-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        run: npm ci
-      - uses: azure/setup-helm@v3
-        with:
-          version: v3.7.0
-      - name: Install Helm Push plugin
-        run: helm plugin install https://github.com/chartmuseum/helm-push --version 0.10.2
+          command: npm ci
+          timeout_minutes: 3
+          max_attempts: 3
+        timeout-minutes: 10
       - name: Download Docker image
         uses: actions/download-artifact@v3
         with:
@@ -47,10 +37,22 @@ jobs:
           path: /tmp
       - name: Import Docker image
         run: docker load -i /tmp/docker-image
+      - name: Log in to Docker Hub
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: docker/login-action@v2
+        with:
+          username: ${{ inputs.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+        timeout-minutes: 1
       - name: Log in to GitHub Container Registry
-        if: github.ref == format('refs/heads/{0}', inputs.main_branch)
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-      - name: Publish Docker image and Helm chart
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        timeout-minutes: 1
+      - name: Publish Docker image
         uses: cycjimmy/semantic-release-action@v3
         with:
           semantic_version: 18.0.1
@@ -61,4 +63,3 @@ jobs:
             conventional-changelog-conventionalcommits@4.6.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HELM_REPO_ACCESS_TOKEN: ${{ secrets.helm_repo_access_token }}
