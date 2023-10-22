@@ -1,4 +1,4 @@
-name: Release
+name: Release a Docker image
 on:
   workflow_call:
     inputs:
@@ -19,17 +19,9 @@ jobs:
         timeout-minutes: 2
       - uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
         timeout-minutes: 5
-      - name: npm ci
-        uses: nick-fields/retry@v2
-        with:
-          command: npm ci
-          timeout_minutes: 3
-          max_attempts: 3
-        timeout-minutes: 10
       - name: Download Docker image
         uses: actions/download-artifact@v3
         with:
