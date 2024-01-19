@@ -14,9 +14,8 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-  ci:
+  test:
     needs: static-checks
-    name: "Run static checks and tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
