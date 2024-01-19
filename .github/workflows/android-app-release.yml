@@ -18,20 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: zulu
-      - name: Cache Grade dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: build
+      - uses: gradle/gradle-build-action@v2
+      - run: gradle build
 
       # The built-in plugin @semantic-release/npm requires package.json to exist even if not used
       - name: Create dummy package.json
