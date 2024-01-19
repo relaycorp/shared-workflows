@@ -37,25 +37,22 @@ jobs:
       - name: Create dummy package.json
         run: |
           if [[ -f package.json ]]; then
-            echo "package.json already exists"
-          else
-            echo '{"name": "foo"}' > package.json
+            echo "Pre-existing package.json file no longer supported" >&2
+            exit 1
           fi
+          
+          echo '{"name": "foo"}' > package.json
 
-      - name: Install Node.js (for semantic-release)
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
       - name: Release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          semantic_version: 19.0.3
+          semantic_version: 23.0.0
           extra_plugins: |
             @semantic-release/exec@^6.0.3
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANDROID_KEYSTORE: ${{ secrets.android_keystore }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
           ANDROID_KEYSTORE_KEY_ALIAS: ${{ secrets.android_key_alias }}
           ANDROID_KEYSTORE_KEY_PASSWORD: ${{ secrets.android_key_password }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.android_publisher_credentials }}
