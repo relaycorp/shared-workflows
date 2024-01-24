@@ -24,7 +24,7 @@ jobs:
           java-version: 17
           distribution: zulu
       - uses: gradle/gradle-build-action@v2
-      - run: ./gradlew build --scan
+      - run: ./gradlew check --scan
       - run: gradle app:assembleDebug app:assembleDebugAndroidTest
       - name: Run tests on physical and virtual devices
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
