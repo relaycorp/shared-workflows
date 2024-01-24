@@ -26,7 +26,7 @@ jobs:
       - uses: gradle/gradle-build-action@v2
         with:
           gradle-version: wrapper
-      - run: gradle build --scan
+      - run: ./gradlew build --scan
       - run: gradle app:assembleDebug app:assembleDebugAndroidTest
       - name: Run tests on physical and virtual devices
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
