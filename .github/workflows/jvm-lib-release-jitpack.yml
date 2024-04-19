@@ -57,6 +57,7 @@ jobs:
 
   publish-docs:
     if: inputs.dokka_docs && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    needs: release
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
