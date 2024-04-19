@@ -48,7 +48,7 @@ jobs:
           path: ${{ inputs.dokka_docs_path }}
           retention-days: 3
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Install Node.js dependencies
