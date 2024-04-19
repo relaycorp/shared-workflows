@@ -13,8 +13,13 @@ on:
         type: string
         default: "./build/dokka/html"
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: "release"
+  group: release
 
 jobs:
   release:
