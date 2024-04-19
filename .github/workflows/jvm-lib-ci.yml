@@ -23,7 +23,7 @@ jobs:
           distribution: zulu
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
 
       - uses: eskatos/gradle-command-action@v2
         id: gradle
