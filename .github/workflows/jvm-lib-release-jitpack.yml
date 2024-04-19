@@ -32,11 +32,14 @@ jobs:
           distribution: zulu
           cache: gradle
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          add-job-summary-as-pr-comment: on-failure
+
       - name: Generate docs
         if: inputs.dokka_docs
-        uses: eskatos/gradle-command-action@v2
-        with:
-          arguments: dokkaHtml
+        run: "./gradlew dokkaHtml --scan"
       - name: Save docs
         uses: actions/upload-artifact@v4
         if: inputs.dokka_docs
