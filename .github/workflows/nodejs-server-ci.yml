@@ -91,7 +91,7 @@ jobs:
           password: ${{ secrets.dockerhub_password }}
         timeout-minutes: 2
       - name: Run Skaffold pipeline
-        uses: hiberbee/github-action-skaffold@1.24.0
+        uses: hiberbee/github-action-skaffold@1.27.0
         with:
           command: run
           skaffold-version: ${{ inputs.skaffold_version }}
