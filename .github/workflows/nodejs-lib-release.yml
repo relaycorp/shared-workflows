@@ -36,10 +36,11 @@ jobs:
         timeout-minutes: 5
       - run: npm run build
 
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         if: ${{ inputs.jekyll_docs == true }}
         with:
           ruby-version: '2.5'
+          bundler-cache: true
       - name: Generate Jekyll docs
         if: ${{ inputs.jekyll_docs == true }}
         run: |
