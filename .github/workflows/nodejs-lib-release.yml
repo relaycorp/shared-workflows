@@ -11,7 +11,7 @@ on:
         description: "Whether the project has API documentation"
         required: false
         type: boolean
-        default: false
+        default: true
     secrets:
       npm_token:
         description: "The NPM_TOKEN"
