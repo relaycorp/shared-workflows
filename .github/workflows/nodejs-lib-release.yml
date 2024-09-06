@@ -19,7 +19,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,6 +52,12 @@ jobs:
         if: ${{ inputs.jekyll_docs == true || inputs.api_docs == true }}
         run: npm run doc-api
 
+      - name: Save documentation as artefact
+        uses: actions/upload-pages-artifact@v3
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        with:
+          path: ./build/docs
+
       - name: Release
         id: release
         uses: cycjimmy/semantic-release-action@v3
@@ -66,3 +72,19 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/docs
+
+  deploy_pages:
+    name: Publish documentation
+    needs: release
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
