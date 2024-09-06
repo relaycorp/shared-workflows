@@ -49,10 +49,7 @@ jobs:
           bundler-cache: true
       - name: Generate Jekyll docs
         if: ${{ inputs.enable_docs == true }}
-        run: |
-          gem install bundler
-          bundle install --path vendor/bundle
-          bundle exec jekyll build
+        run: bundle exec jekyll build
         working-directory: docs
       - name: Save documentation as artefact
         uses: actions/upload-pages-artifact@v3

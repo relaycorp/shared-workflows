@@ -43,10 +43,7 @@ jobs:
           bundler-cache: true
       - name: Generate Jekyll docs
         if: ${{ inputs.jekyll_docs == true }}
-        run: |
-          gem install bundler
-          bundle install --path vendor/bundle
-          bundle exec jekyll build
+        run: bundle exec jekyll build
         working-directory: docs
 
       - name: Generate API docs
