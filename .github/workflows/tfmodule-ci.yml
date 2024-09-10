@@ -43,6 +43,6 @@ jobs:
           IFS=',' read -r -a terraform_validate_dummy_env_vars <<< "${{ inputs.terraform_validate_dummy_env_vars }}"
           # Set dummy variables to an empty string
           for var in "${terraform_validate_dummy_env_vars[@]}"; do
-            export $var=""
+            export $var="dummy"
           done
           terraform validate
