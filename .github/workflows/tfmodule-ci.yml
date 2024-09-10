@@ -15,7 +15,7 @@ on:
       terraform_validate_dummy_env_vars:
         description: "Dummy variables to pass to terraform validate"
         required: false
-        type: array
+        type: string
         default: []
 
 jobs:
