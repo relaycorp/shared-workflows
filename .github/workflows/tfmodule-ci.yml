@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: "1.1.0"
+      terraform_validate_dummy_env_vars:
+        description: "Dummy variables to pass to terraform validate"
+        required: false
+        type: array
+        default: []
 
 jobs:
   ci:
@@ -31,5 +36,12 @@ jobs:
       - run: terraform init -backend=false
         working-directory: ${{ inputs.path }}
 
-      - run: terraform validate
+      - name: Validate Terraform configuration
         working-directory: ${{ inputs.path }}
+        run: |
+          # Set dummy variables to an empty string
+          terraform_validate_dummy_env_vars=("${{ inputs.terraform_validate_dummy_env_vars }}")
+          for var in "${terraform_validate_dummy_env_vars[@]}"; do
+              export $var=""
+          done
+          terraform validate
