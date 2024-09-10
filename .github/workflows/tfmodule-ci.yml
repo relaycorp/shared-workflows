@@ -16,7 +16,7 @@ on:
         description: "Dummy variables to pass to terraform validate"
         required: false
         type: string
-        default: []
+        default: ""
 
 jobs:
   ci:
