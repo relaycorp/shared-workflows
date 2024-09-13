@@ -85,7 +85,7 @@ jobs:
           memory: 6000m
         timeout-minutes: 5
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ inputs.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
