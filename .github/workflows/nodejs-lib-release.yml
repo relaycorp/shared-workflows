@@ -37,22 +37,22 @@ jobs:
       - run: npm run build
 
       - uses: ruby/setup-ruby@v1
-        if: ${{ inputs.jekyll_docs == true }}
+        if: inputs.jekyll_docs == true
         with:
           ruby-version: '2.5'
           bundler-cache: true
       - name: Generate Jekyll docs
-        if: ${{ inputs.jekyll_docs == true }}
+        if: inputs.jekyll_docs == true
         run: bundle exec jekyll build
         working-directory: docs
 
       - name: Generate API docs
-        if: ${{ inputs.jekyll_docs == true || inputs.api_docs == true }}
+        if: inputs.api_docs == true
         run: npm run doc-api
 
       - name: Save documentation as artefact
         uses: actions/upload-pages-artifact@v3
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        if: inputs.jekyll_docs == true || inputs.api_docs == true
         with:
           path: ./build/docs
 
@@ -68,7 +68,7 @@ jobs:
   deploy_pages:
     name: Publish documentation
     needs: release
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: (inputs.jekyll_docs == true || inputs.api_docs == true) && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     permissions:
       pages: write
       id-token: write
