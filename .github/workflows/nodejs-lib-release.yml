@@ -39,7 +39,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         if: inputs.jekyll_docs == true
         with:
-          ruby-version: '2.5'
+          ruby-version: '3.2'
           bundler-cache: true
       - name: Generate Jekyll docs
         if: inputs.jekyll_docs == true
