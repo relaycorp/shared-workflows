@@ -41,6 +41,10 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
+      - name: Install dependencies
+        if: inputs.jekyll_docs == true
+        run: bundle install
+        working-directory: docs
       - name: Generate Jekyll docs
         if: inputs.jekyll_docs == true
         run: bundle exec jekyll build
