@@ -1,0 +1,100 @@
+name: CI
+on:
+  workflow_call:
+    inputs:
+      docker_image_local_name:
+        description: "The local name of the Docker image"
+        required: true
+        type: string
+      dockerhub_username:
+        description: "The Docker Hub username"
+        required: true
+        type: string
+    secrets:
+      dockerhub_password:
+        description: "The Docker Hub password"
+        required: true
+
+jobs:
+  ci:
+    runs-on: buildjet-8vcpu-ubuntu-2204
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+        timeout-minutes: 5
+      - name: npm ci
+        uses: nick-fields/retry@v2
+        with:
+          command: npm ci
+          timeout_minutes: 3
+          max_attempts: 3
+        timeout-minutes: 10
+      - run: npm run static-checks
+        timeout-minutes: 3
+      - run: npm test
+        timeout-minutes: 5
+
+      # Functional tests
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ inputs.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+        timeout-minutes: 2
+      - name: Start Docker Compose services
+        run: docker compose up -d
+        timeout-minutes: 5
+      - name: Functional tests
+        timeout-minutes: 5
+        run: npm run test:functional
+
+      # Export Docker image so it can be published
+      - name: Export Docker image
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          DOCKER_IMAGE_TAG="$(docker images "${{ inputs.docker_image_local_name }}" --format '{{.Tag}}' | tail -1)"
+          docker tag "${{ inputs.docker_image_local_name }}:${DOCKER_IMAGE_TAG}" "${GITHUB_REPOSITORY}:ci"
+          docker save -o /tmp/docker-image "${GITHUB_REPOSITORY}:ci"
+        timeout-minutes: 3
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/docker-image
+        timeout-minutes: 5
+
+      - name: Output diagnostic information upon failure
+        if: failure()
+        run: |-
+          set -o nounset
+          set -o errexit
+          set -o pipefail
+
+          # Functions
+
+          print_header() {
+            local title="$1"
+
+            echo
+            printf '#%.0s' {1..50}
+            echo " ${title}"
+          }
+
+          # Main
+
+          print_header "Docker Compose services"
+          docker compose ps
+
+          print_header "Docker Compose logs"
+          docker compose logs
+        timeout-minutes: 2
