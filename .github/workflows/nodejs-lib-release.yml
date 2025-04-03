@@ -62,9 +62,11 @@ jobs:
 
       - name: Release
         id: release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          semantic_version: 19.0.5
+          semantic_version: 24.2.3
+          branches: "[ ${{ github.event.repository.default_branch }} ]"
+          extends: '@relaycorp/shared-config'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.npm_token }}
