@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node: [18, 20]
+        node: [20, 22]
     runs-on: ubuntu-latest
     name: "nodejs${{ matrix.node }}"
     steps:
